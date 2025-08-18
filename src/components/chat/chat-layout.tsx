@@ -69,7 +69,8 @@ const mockMessages: Record<string, Message[]> = {
       senderId: "current",
       content: "I know how important this file is to you. You can trust me :) I know how important this file is to you. You can trust me :) know how important this file is to you. You can trust me :)",
       timestamp: new Date(Date.now() - 180000),
-      isCurrentUser: true
+      isCurrentUser: true,
+      responseType: "ai"
     },
     {
       id: "3",
@@ -77,6 +78,14 @@ const mockMessages: Record<string, Message[]> = {
       content: "I know how important this file is to you. You can trust me :) I know how important this file is to you. You can trust me :) know how important this file is to you. You can trust me :)",
       timestamp: new Date(Date.now() - 60000),
       isCurrentUser: false
+    },
+    {
+      id: "4",
+      senderId: "current",
+      content: "Thanks for clarifying that! I understand the importance now.",
+      timestamp: new Date(Date.now() - 30000),
+      isCurrentUser: true,
+      responseType: "human"
     }
   ],
   "2": [
@@ -92,7 +101,8 @@ const mockMessages: Record<string, Message[]> = {
       senderId: "current",
       content: "Great! How about tomorrow at 7 PM?",
       timestamp: new Date(Date.now() - 200000),
-      isCurrentUser: true
+      isCurrentUser: true,
+      responseType: "ai"
     }
   ],
   "3": [
@@ -108,7 +118,8 @@ const mockMessages: Record<string, Message[]> = {
       senderId: "current",
       content: "That sounds perfect! See you there.",
       timestamp: new Date(Date.now() - 300000),
-      isCurrentUser: true
+      isCurrentUser: true,
+      responseType: "human"
     }
   ],
   "4": [
@@ -124,7 +135,8 @@ const mockMessages: Record<string, Message[]> = {
       senderId: "current",
       content: "Anytime after 6 PM works for me!",
       timestamp: new Date(Date.now() - 400000),
-      isCurrentUser: true
+      isCurrentUser: true,
+      responseType: "ai"
     }
   ],
   "5": [
@@ -140,7 +152,8 @@ const mockMessages: Record<string, Message[]> = {
       senderId: "current",
       content: "Thanks for understanding! Should be there in 10 minutes.",
       timestamp: new Date(Date.now() - 500000),
-      isCurrentUser: true
+      isCurrentUser: true,
+      responseType: "human"
     }
   ]
 }

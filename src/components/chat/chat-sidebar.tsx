@@ -1,7 +1,7 @@
-import { Search } from "lucide-react"
+import { Search, User } from "lucide-react"
 import Image from "next/image"
 import { Input } from "@/components/ui/input"
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
+import { Avatar,  AvatarFallback } from "@/components/ui/avatar"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Chat } from "@/types/chat"
 import { cn } from "@/lib/utils"
@@ -61,23 +61,25 @@ export function ChatSidebar({
               key={chat.id}
               onClick={() => onChatSelect(chat.id)}
               className={cn(
-                "flex items-center gap-3 p-4 cursor-pointer transition-colors hover:bg-muted/50 mx-0",
+                "flex items-center gap-3 p-3 cursor-pointer transition-colors hover:bg-muted/50 mx-0",
                 selectedChatId === chat.id && "bg-muted"
               )}
             >
               {/* Avatar */}
               <div>
                 <Avatar className="h-10 w-10">
-                  <AvatarImage src={chat.user.avatar} alt={chat.user.name} />
-                  <AvatarFallback className="bg-primary text-primary-foreground text-sm">
-                    {chat.user.name.charAt(0).toUpperCase()}
+                  <AvatarFallback className="bg-muted text-muted-foreground">
+                    <User className="h-5 w-5" />
                   </AvatarFallback>
                 </Avatar>
               </div>
 
               {/* Chat Info */}
               <div className="flex-1 min-w-0">
-                <h3 className="font-medium text-sm truncate mb-1">{chat.user.name}</h3>
+                <div className="mb-0.5">
+                  <h3 className="font-medium text-sm truncate">{chat.user.name}</h3>
+                  <p className="text-sm text-foreground">ID: {chat.user.id}</p>
+                </div>
                 <p className="text-sm text-muted-foreground truncate">
                   {chat.lastMessage}
                 </p>

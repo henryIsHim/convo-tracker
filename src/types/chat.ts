@@ -10,6 +10,7 @@ export interface Message {
   content: string
   timestamp: Date
   isCurrentUser: boolean
+  responseType?: 'human' | 'ai' // Only for outgoing messages
 }
 
 export interface Chat {
