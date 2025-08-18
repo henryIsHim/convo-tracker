@@ -1,5 +1,5 @@
 import { ArrowLeft, User } from "lucide-react"
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
+import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { ChatUser, Message } from "@/types/chat"
@@ -44,8 +44,8 @@ export function ChatWindow({ user, messages, onBack }: ChatWindowProps) {
               <ArrowLeft className="h-4 w-4" />
             </Button>
           )}
-          <Avatar className="h-10 w-10">
-            <AvatarFallback className="bg-muted text-muted-foreground">
+          <Avatar className="h-10 w-10 shadow-sm">
+            <AvatarFallback className="bg-gradient-to-br from-slate-100 to-slate-200 text-muted-foreground">
               <User className="h-5 w-5" />
             </AvatarFallback>
           </Avatar>
@@ -57,7 +57,7 @@ export function ChatWindow({ user, messages, onBack }: ChatWindowProps) {
       </div>
 
       {/* Messages */}
-      <ScrollArea className="flex-1 p-4 overscroll-none">
+      <ScrollArea className="flex-1 p-4 overscroll-none custom-scrollbar">
         <div className="space-y-4">
           {messages.map((message) => (
             <div
@@ -68,8 +68,8 @@ export function ChatWindow({ user, messages, onBack }: ChatWindowProps) {
               )}
             >
               {!message.isCurrentUser && (
-                <Avatar className="h-8 w-8 mt-1">
-                  <AvatarFallback className="bg-muted text-muted-foreground">
+                <Avatar className="h-8 w-8 mt-1 shadow-sm">
+                  <AvatarFallback className="bg-gradient-to-br from-slate-100 to-slate-200 text-muted-foreground">
                     <User className="h-4 w-4" />
                   </AvatarFallback>
                 </Avatar>
@@ -77,20 +77,20 @@ export function ChatWindow({ user, messages, onBack }: ChatWindowProps) {
               
               <div
                 className={cn(
-                  "rounded-lg text-sm",
+                  "rounded-xl text-base shadow-sm transition-all duration-200 hover:shadow-md",
                   message.isCurrentUser
-                    ? "bg-primary text-primary-foreground ml-2 px-3 py-2"
-                    : "bg-muted mr-2 px-3 py-2"
+                    ? "bg-gradient-to-br from-slate-800 to-slate-900 text-primary-foreground ml-2 px-3 py-2"
+                    : "bg-gradient-to-br from-slate-50 to-slate-100 mr-2 px-3 py-2 shadow-slate-200/50"
                 )}
               >
                 {/* Response Type - Only for outgoing messages */}
                 {message.isCurrentUser && message.responseType && (
                   <div className="mb-1">
                     <span className={cn(
-                      "text-xs",
-                      message.isCurrentUser
-                        ? "text-primary-foreground/70"
-                        : "text-muted-foreground"
+                      "text-sm font-medium",
+                      message.responseType === "ai" 
+                        ? "text-blue-400" 
+                        : "text-green-400"
                     )}>
                       {message.responseType === "ai" ? "ai_response" : "human_response"}
                     </span>
@@ -100,7 +100,7 @@ export function ChatWindow({ user, messages, onBack }: ChatWindowProps) {
                 <p className="break-words">{message.content}</p>
                 <span
                   className={cn(
-                    "text-xs mt-1 block",
+                    "text-sm mt-1 block",
                     message.isCurrentUser
                       ? "text-primary-foreground/60"
                       : "text-muted-foreground"
