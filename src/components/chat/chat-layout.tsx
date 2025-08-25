@@ -1,513 +1,393 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect, useMemo } from "react"
 import { ChatSidebar } from "./chat-sidebar"
 import { ChatWindow } from "./chat-window"
 import { Chat, Message } from "@/types/chat"
 import { cn } from "@/lib/utils"
 
-// Mock data
-const mockChats: Chat[] = [
-  {
-    id: "1",
-    user: {
-      id: "1",
-      name: "Jacquenetta Slowgrave",
-      avatar: ""
-    },
-    lastMessage: ""
-  },
-  {
-    id: "2",
-    user: {
-      id: "2",
-      name: "Nickola Peever",
-      avatar: ""
-    },
-    lastMessage: ""
-  },
-  {
-    id: "3",
-    user: {
-      id: "3",
-      name: "Farand Hume",
-      avatar: ""
-    },
-    lastMessage: ""
-  },
-  {
-    id: "4",
-    user: {
-      id: "4",
-      name: "Ossie Peasey",
-      avatar: ""
-    },
-    lastMessage: ""
-  },
-  {
-    id: "5",
-    user: {
-      id: "5",
-      name: "Hall Negri",
-      avatar: ""
-    },
-    lastMessage: ""
-  },
-  {
-    id: "6",
-    user: {
-      id: "6",
-      name: "Sarah Mitchell",
-      avatar: ""
-    },
-    lastMessage: ""
-  },
-  {
-    id: "7",
-    user: {
-      id: "7",
-      name: "Alex Rodriguez",
-      avatar: ""
-    },
-    lastMessage: ""
-  },
-  {
-    id: "8",
-    user: {
-      id: "8",
-      name: "Emily Chen",
-      avatar: ""
-    },
-    lastMessage: ""
-  },
-  {
-    id: "9",
-    user: {
-      id: "9",
-      name: "Michael Johnson",
-      avatar: ""
-    },
-    lastMessage: ""
-  },
-  {
-    id: "10",
-    user: {
-      id: "10",
-      name: "Jessica Brown",
-      avatar: ""
-    },
-    lastMessage: ""
-  },
-  {
-    id: "11",
-    user: {
-      id: "11",
-      name: "David Wilson",
-      avatar: ""
-    },
-    lastMessage: ""
-  },
-  {
-    id: "12",
-    user: {
-      id: "12",
-      name: "Lisa Thompson",
-      avatar: ""
-    },
-    lastMessage: ""
-  }
-]
-
-const mockMessages: Record<string, Message[]> = {
-  "1": [
-    {
-      id: "1",
-      senderId: "1",
-      content: "Hey! How's the project coming along?",
-      timestamp: new Date(Date.now() - 1800000),
-      isCurrentUser: false
-    },
-    {
-      id: "2", 
-      senderId: "current",
-      content: "It's going well! I've completed about 70% of the tasks. Should be ready for review by tomorrow.",
-      timestamp: new Date(Date.now() - 1740000),
-      isCurrentUser: true,
-      responseType: "human"
-    },
-    {
-      id: "3",
-      senderId: "1", 
-      content: "That's great progress! Any blockers I should know about?",
-      timestamp: new Date(Date.now() - 1680000),
-      isCurrentUser: false
-    },
-    {
-      id: "4",
-      senderId: "current",
-      content: "Actually, yes. I'm having some issues with the database integration. The API responses are inconsistent.",
-      timestamp: new Date(Date.now() - 1620000),
-      isCurrentUser: true,
-      responseType: "human"
-    },
-    {
-      id: "5",
-      senderId: "1",
-      content: "I see. Have you checked the connection timeout settings? Sometimes that causes intermittent issues.",
-      timestamp: new Date(Date.now() - 1560000),
-      isCurrentUser: false
-    },
-    {
-      id: "6",
-      senderId: "current",
-      content: "Good point! Let me verify the timeout configuration and also check the error logs for more details.",
-      timestamp: new Date(Date.now() - 1500000),
-      isCurrentUser: true,
-      responseType: "ai"
-    },
-    {
-      id: "7",
-      senderId: "1",
-      content: "Perfect. Also, make sure you're using the latest version of the SDK. We updated it last week.",
-      timestamp: new Date(Date.now() - 1440000),
-      isCurrentUser: false
-    },
-    {
-      id: "8",
-      senderId: "current",
-      content: "Oh, I wasn't aware of the update! I'll download the latest version right now. Thanks for the heads up.",
-      timestamp: new Date(Date.now() - 1380000),
-      isCurrentUser: true,
-      responseType: "human"
-    },
-    {
-      id: "9",
-      senderId: "1",
-      content: "No problem! The new version has better error handling and improved performance. Should solve your issues.",
-      timestamp: new Date(Date.now() - 1320000),
-      isCurrentUser: false
-    },
-    {
-      id: "10",
-      senderId: "current",
-      content: "Excellent! I've updated the SDK and the database connections are much more stable now. The timeout issues are resolved.",
-      timestamp: new Date(Date.now() - 1260000),
-      isCurrentUser: true,
-      responseType: "ai"
-    },
-    {
-      id: "11",
-      senderId: "1",
-      content: "Awesome! Glad that worked out. How are the unit tests looking?",
-      timestamp: new Date(Date.now() - 1200000),
-      isCurrentUser: false
-    },
-    {
-      id: "12",
-      senderId: "current",
-      content: "Test coverage is at 85% and all existing tests are passing. I'm adding a few more edge cases today.",
-      timestamp: new Date(Date.now() - 1140000),
-      isCurrentUser: true,
-      responseType: "human"
-    },
-    {
-      id: "13",
-      senderId: "1",
-      content: "Great! 85% is solid coverage. Don't forget to test the error scenarios we discussed in the planning meeting.",
-      timestamp: new Date(Date.now() - 1080000),
-      isCurrentUser: false
-    },
-    {
-      id: "14",
-      senderId: "current",
-      content: "Absolutely! I've already covered network failures and invalid responses. Working on timeout scenarios now.",
-      timestamp: new Date(Date.now() - 1020000),
-      isCurrentUser: true,
-      responseType: "ai"
-    },
-    {
-      id: "15",
-      senderId: "1",
-      content: "Perfect! You're really on top of this. The client will be impressed with the thoroughness.",
-      timestamp: new Date(Date.now() - 960000),
-      isCurrentUser: false
-    },
-    {
-      id: "16",
-      senderId: "current",
-      content: "Thanks! I want to make sure everything is bulletproof before the demo. Quality is our top priority.",
-      timestamp: new Date(Date.now() - 900000),
-      isCurrentUser: true,
-      responseType: "human"
-    },
-    {
-      id: "17",
-      senderId: "1",
-      content: "I appreciate that approach. By the way, have you prepared the presentation slides for the demo?",
-      timestamp: new Date(Date.now() - 840000),
-      isCurrentUser: false
-    },
-    {
-      id: "18",
-      senderId: "current",
-      content: "Working on them now! I'll have a draft ready by end of day and will share it with the team for feedback.",
-      timestamp: new Date(Date.now() - 780000),
-      isCurrentUser: true,
-      responseType: "ai"
-    },
-    {
-      id: "19",
-      senderId: "1",
-      content: "Sounds like a plan! Make sure to include the performance metrics and before/after comparisons.",
-      timestamp: new Date(Date.now() - 720000),
-      isCurrentUser: false
-    },
-    {
-      id: "20",
-      senderId: "current",
-      content: "Good reminder! I'll add a section showing the 40% performance improvement and the reduced error rates.",
-      timestamp: new Date(Date.now() - 660000),
-      isCurrentUser: true,
-      responseType: "human"
-    },
-    {
-      id: "21",
-      senderId: "1",
-      content: "Excellent! Those numbers really tell the story. The client will love seeing the tangible improvements.",
-      timestamp: new Date(Date.now() - 600000),
-      isCurrentUser: false
-    },
-    {
-      id: "22",
-      senderId: "current",
-      content: "Definitely! Visual charts always make a stronger impact than just talking about the improvements.",
-      timestamp: new Date(Date.now() - 540000),
-      isCurrentUser: true,
-      responseType: "ai"
-    },
-    {
-      id: "23",
-      senderId: "1",
-      content: "I know how important this file is to you. You can trust me :) me :)",
-      timestamp: new Date(Date.now() - 300000),
-      isCurrentUser: false
-    },
-    {
-      id: "24", 
-      senderId: "current",
-      content: "I know how important this file is to you. You can trust me :) I know how important this file is to you. You can trust me :) know how important this file is to you. You can trust me :)",
-      timestamp: new Date(Date.now() - 180000),
-      isCurrentUser: true,
-      responseType: "ai"
-    },
-    {
-      id: "25",
-      senderId: "1", 
-      content: "I know how important this file is to you. You can trust me :) I know how important this file is to you. You can trust me :) know how important this file is to you. You can trust me :)",
-      timestamp: new Date(Date.now() - 60000),
-      isCurrentUser: false
-    },
-    {
-      id: "26",
-      senderId: "current",
-      content: "Thanks for clarifying that! I understand the importance now.",
-      timestamp: new Date(Date.now() - 30000),
-      isCurrentUser: true,
-      responseType: "human"
-    }
-  ],
-  "2": [
-    {
-      id: "4",
-      senderId: "2",
-      content: "Sounds perfect! I've been wanting to try that place for a while.",
-      timestamp: new Date(Date.now() - 400000),
-      isCurrentUser: false
-    },
-    {
-      id: "5",
-      senderId: "current",
-      content: "Great! How about tomorrow at 7 PM?",
-      timestamp: new Date(Date.now() - 200000),
-      isCurrentUser: true,
-      responseType: "ai"
-    }
-  ],
-  "3": [
-    {
-      id: "6",
-      senderId: "3",
-      content: "How about 7 PM at the new Italian place downtown?",
-      timestamp: new Date(Date.now() - 500000),
-      isCurrentUser: false
-    },
-    {
-      id: "7",
-      senderId: "current",
-      content: "That sounds perfect! See you there.",
-      timestamp: new Date(Date.now() - 300000),
-      isCurrentUser: true,
-      responseType: "human"
-    }
-  ],
-  "4": [
-    {
-      id: "8",
-      senderId: "4",
-      content: "Hey Bonnie, yes, definitely! What time works best for you?",
-      timestamp: new Date(Date.now() - 600000),
-      isCurrentUser: false
-    },
-    {
-      id: "9",
-      senderId: "current",
-      content: "Anytime after 6 PM works for me!",
-      timestamp: new Date(Date.now() - 400000),
-      isCurrentUser: true,
-      responseType: "ai"
-    }
-  ],
-  "5": [
-    {
-      id: "10",
-      senderId: "5",
-      content: "No worries at all! I'll grab a table and wait for you.",
-      timestamp: new Date(Date.now() - 700000),
-      isCurrentUser: false
-    },
-    {
-      id: "11",
-      senderId: "current",
-      content: "Thanks for understanding! Should be there in 10 minutes.",
-      timestamp: new Date(Date.now() - 500000),
-      isCurrentUser: true,
-      responseType: "human"
-    }
-  ],
-  "6": [
-    {
-      id: "12",
-      senderId: "6",
-      content: "Hey, are you available for a quick call today?",
-      timestamp: new Date(Date.now() - 120000),
-      isCurrentUser: false
-    },
-    {
-      id: "13",
-      senderId: "current",
-      content: "Sure! I'm free after 3 PM. What works best for you?",
-      timestamp: new Date(Date.now() - 60000),
-      isCurrentUser: true,
-      responseType: "human"
-    }
-  ],
-  "7": [
-    {
-      id: "14",
-      senderId: "current",
-      content: "The project requirements have been updated. Please review the new specifications.",
-      timestamp: new Date(Date.now() - 480000),
-      isCurrentUser: true,
-      responseType: "ai"
-    },
-    {
-      id: "15",
-      senderId: "7",
-      content: "Got it! I'll review them and get back to you by tomorrow.",
-      timestamp: new Date(Date.now() - 420000),
-      isCurrentUser: false
-    }
-  ],
-  "8": [
-    {
-      id: "16",
-      senderId: "8",
-      content: "Can you help me with the deployment process?",
-      timestamp: new Date(Date.now() - 900000),
-      isCurrentUser: false
-    },
-    {
-      id: "17",
-      senderId: "current",
-      content: "Of course! Let me walk you through the steps. First, make sure you have access to the staging environment.",
-      timestamp: new Date(Date.now() - 840000),
-      isCurrentUser: true,
-      responseType: "human"
-    }
-  ],
-  "9": [
-    {
-      id: "18",
-      senderId: "current",
-      content: "The weekly report has been generated and is ready for your review.",
-      timestamp: new Date(Date.now() - 1200000),
-      isCurrentUser: true,
-      responseType: "ai"
-    }
-  ],
-  "10": [
-    {
-      id: "19",
-      senderId: "10",
-      content: "Thanks for the quick turnaround on the bug fix!",
-      timestamp: new Date(Date.now() - 1800000),
-      isCurrentUser: false
-    },
-    {
-      id: "20",
-      senderId: "current",
-      content: "You're welcome! Let me know if you encounter any other issues.",
-      timestamp: new Date(Date.now() - 1740000),
-      isCurrentUser: true,
-      responseType: "human"
-    }
-  ],
-  "11": [
-    {
-      id: "21",
-      senderId: "current",
-      content: "I've scheduled our meeting for next Tuesday at 2 PM. Please confirm if this works for you.",
-      timestamp: new Date(Date.now() - 2400000),
-      isCurrentUser: true,
-      responseType: "ai"
-    }
-  ],
-  "12": [
-    {
-      id: "22",
-      senderId: "12",
-      content: "Could you send me the latest design mockups?",
-      timestamp: new Date(Date.now() - 3600000),
-      isCurrentUser: false
-    },
-    {
-      id: "23",
-      senderId: "current",
-      content: "Absolutely! I'll email them to you within the next hour.",
-      timestamp: new Date(Date.now() - 3540000),
-      isCurrentUser: true,
-      responseType: "human"
-    }
-  ]
+// API interfaces
+interface ApiMessage {
+  id: number
+  message_id: number
+  contact_id: number
+  direction: 'in' | 'out' | 'ai_response'
+  text: string
+  timestamp: number
+  created_at: string
 }
+
+interface ApiConversation {
+  id: number
+  contact_id: number
+  contact_name: string
+  assignee_id: number
+  assignee_name: string
+  channel_id: number
+  channel_name: string
+  ai_active: boolean
+  created_at: string
+  updated_at: string
+  messages?: ApiMessage[]
+}
+
+// Transform API data to match current types
+function transformApiToChat(apiConversation: ApiConversation): Chat {
+  const lastMessage = apiConversation.messages && apiConversation.messages.length > 0 
+    ? apiConversation.messages[0].text 
+    : "No messages yet"
+
+  return {
+    id: apiConversation.contact_id.toString(),
+    user: {
+      id: apiConversation.contact_id.toString(),
+      name: apiConversation.contact_name,
+      avatar: ""
+    },
+    lastMessage,
+    aiActive: apiConversation.ai_active
+  }
+}
+
+function transformApiToMessage(apiMessage: ApiMessage): Message {
+  const isCurrentUser = apiMessage.direction === 'out' || apiMessage.direction === 'ai_response'
+  
+  return {
+    id: apiMessage.id.toString(),
+    senderId: isCurrentUser ? "current" : apiMessage.contact_id.toString(),
+    content: apiMessage.text,
+    timestamp: new Date(apiMessage.timestamp),
+    isCurrentUser,
+    responseType: apiMessage.direction === 'ai_response' ? 'ai' : (isCurrentUser ? 'human' : undefined),
+    aiStatus: apiMessage.direction === 'ai_response' ? 'sent' : undefined,
+    knowledgeBaseId: apiMessage.direction === 'ai_response' ? 'KB_025' : undefined
+  }
+}
+
 
 export function ChatLayout() {
   const [selectedChatId, setSelectedChatId] = useState<string>()
   const [searchQuery, setSearchQuery] = useState("")
+  const [chats, setChats] = useState<Chat[]>([])
+  const [messages, setMessages] = useState<Message[]>([])
+  const [loading, setLoading] = useState(true)
+  const [messagesLoading, setMessagesLoading] = useState(false)
+  const [pendingApprovals, setPendingApprovals] = useState<any[]>([])
 
-  const selectedChat = mockChats.find(chat => chat.id === selectedChatId)
-  const messages = selectedChatId ? mockMessages[selectedChatId] || [] : []
+  // Fetch conversations and pending approvals on mount
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true)
+        
+        // Fetch conversations
+        const conversationsResponse = await fetch('/api/conversations?page=1&limit=100')
+        const conversationsData = await conversationsResponse.json()
+        const transformedChats = conversationsData.data.map(transformApiToChat)
+        setChats(transformedChats)
 
-  // Generate chats with actual last messages from message history
-  const chatsWithLastMessages = mockChats.map(chat => {
-    const chatMessages = mockMessages[chat.id] || []
-    const lastMessage = chatMessages.length > 0 ? chatMessages[chatMessages.length - 1] : null
-    return {
-      ...chat,
-      lastMessage: lastMessage ? lastMessage.content : "No messages yet"
+        // Fetch pending approvals
+        try {
+          const approvalsResponse = await fetch('/api/approvals')
+          const approvalsData = await approvalsResponse.json()
+          if (approvalsData.approvals) {
+            // Store all approvals (pending, approved, rejected)
+            setPendingApprovals(approvalsData.approvals)
+          }
+        } catch (approvalError) {
+          console.error('Error fetching approvals:', approvalError)
+          setPendingApprovals([])
+        }
+        
+      } catch (error) {
+        console.error('Error fetching data:', error)
+      } finally {
+        setLoading(false)
+      }
     }
-  })
 
+    fetchData()
+  }, [])
+
+  // Fetch messages when chat is selected or pending approvals change
+  useEffect(() => {
+    if (selectedChatId) {
+      const fetchMessages = async () => {
+        try {
+          // Only show loading spinner when switching chats, not on approval updates
+          if (!messages.length) {
+            setMessagesLoading(true)
+          }
+          
+          // Fetch conversation history
+          const response = await fetch(`/api/conversations/${selectedChatId}/history?limit=50`)
+          const data = await response.json()
+          let transformedMessages: Message[] = []
+          
+          if (data.data && data.data.messages) {
+            transformedMessages = data.data.messages.map(transformApiToMessage)
+          }
+          
+          // Get all approvals for this contact
+          const approvalsForContact = pendingApprovals
+            .filter((approval: any) => approval.contact_id.toString() === selectedChatId)
+          
+          // Create a Set of message IDs that have approvals to avoid duplicates
+          const approvalMessageIds = new Set(approvalsForContact.map((approval: any) => approval.message_id.toString()))
+          
+          // Filter out regular messages that have corresponding approvals to prevent duplicates
+          transformedMessages = transformedMessages.filter(msg => {
+            // If this is an AI response message that has an approval, filter it out
+            if (msg.responseType === 'ai' && approvalMessageIds.has(msg.id)) {
+              return false
+            }
+            return true
+          })
+          
+          // Add approval-based messages
+          const approvalMessages = approvalsForContact.map((approval: any) => {
+            const status = approval.approval_status
+            let aiStatus: 'pending' | 'sent' | 'rejected'
+            
+            if (status === 'pending') {
+              aiStatus = 'pending'
+            } else if (status === 'approved') {
+              aiStatus = 'sent'
+            } else {
+              aiStatus = 'rejected'
+            }
+            
+            return {
+              id: `${status}_${approval.message_id}`,
+              senderId: "current",
+              content: approval.ai_response,
+              timestamp: new Date(approval.updated_at || approval.created_at),
+              isCurrentUser: true,
+              responseType: 'ai' as const,
+              aiStatus,
+              knowledgeBaseId: 'KB_025'
+            }
+          })
+          
+          // Only add messages that aren't rejected
+          const visibleApprovalMessages = approvalMessages.filter(msg => 
+            msg.aiStatus === 'pending' || msg.aiStatus === 'sent'
+          )
+          
+          transformedMessages = [...transformedMessages, ...visibleApprovalMessages]
+          
+          // Sort by timestamp and set messages
+          transformedMessages.sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime())
+          setMessages(transformedMessages)
+          
+        } catch (error) {
+          console.error('Error fetching messages:', error)
+        } finally {
+          setMessagesLoading(false)
+        }
+      }
+
+      fetchMessages()
+    } else {
+      setMessages([])
+    }
+  }, [selectedChatId, pendingApprovals])
+
+  const selectedChat = chats.find(chat => chat.id === selectedChatId)
+
+  const handleApproveMessage = async (messageId: string) => {
+    try {
+      // Extract the actual message ID from pending prefixed IDs
+      const actualMessageId = messageId.startsWith('pending_') 
+        ? messageId.replace('pending_', '') 
+        : messageId
+      
+      console.log('Approving message:', actualMessageId)
+      
+      const payload = { 
+        status: 'approved',
+        approved_by: 'admin_user'
+      }
+      console.log('Approval payload:', payload)
+      
+      // Call the approval API
+      const response = await fetch(`/api/approvals/${actualMessageId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      })
+
+      if (response.ok) {
+        console.log('Approval successful, refreshing data...')
+        
+        // Immediately update local approval status to show as sent
+        setPendingApprovals(prevApprovals => 
+          prevApprovals.map(approval => 
+            approval.message_id.toString() === actualMessageId 
+              ? { ...approval, approval_status: 'approved', updated_at: new Date().toISOString() }
+              : approval
+          )
+        )
+        
+        // Small delay to ensure server has processed the update
+        await new Promise(resolve => setTimeout(resolve, 500))
+        
+        // Check the specific message that was just approved
+        const specificMessageResponse = await fetch(`/api/approvals/${actualMessageId}`)
+        if (specificMessageResponse.ok) {
+          const specificData = await specificMessageResponse.json()
+          console.log(`Specific message ${actualMessageId} after approval:`, specificData)
+        }
+        
+        // Refresh pending approvals to get latest data
+        const approvalsResponse = await fetch('/api/approvals')
+        if (approvalsResponse.ok) {
+          const approvalsData = await approvalsResponse.json()
+          console.log('Full approvals response:', approvalsData)
+          console.log('Updated approvals data:', approvalsData.approvals)
+          if (approvalsData.approvals) {
+            setPendingApprovals(approvalsData.approvals)
+          } else if (approvalsData.approvals === null) {
+            // Don't clear all approvals when API returns null after approval
+            // Keep existing approvals to maintain proper message state tracking
+            console.log('API returned null approvals after approval, keeping existing approval data')
+          }
+        }
+      } else {
+        const errorText = await response.text()
+        console.error('Failed to approve message:', response.status, errorText)
+        alert('Failed to approve message. Please try again.')
+      }
+    } catch (error) {
+      console.error('Error approving message:', error)
+      alert('Error approving message. Please check your connection and try again.')
+    }
+  }
+
+  const handleRejectMessage = async (messageId: string) => {
+    try {
+      // Extract the actual message ID from pending prefixed IDs
+      const actualMessageId = messageId.startsWith('pending_') 
+        ? messageId.replace('pending_', '') 
+        : messageId
+      
+      console.log('Rejecting message:', actualMessageId)
+      
+      const payload = { 
+        status: 'rejected',
+        approved_by: 'admin_user'
+      }
+      console.log('Rejection payload:', payload)
+      
+      // Call the approval API
+      const response = await fetch(`/api/approvals/${actualMessageId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      })
+      
+      console.log('Rejection response status:', response.status)
+
+      if (response.ok) {
+        console.log('Rejection successful, refreshing data...')
+        
+        // Immediately update local approval status to hide the message
+        setPendingApprovals(prevApprovals => 
+          prevApprovals.map(approval => 
+            approval.message_id.toString() === actualMessageId 
+              ? { ...approval, approval_status: 'rejected' }
+              : approval
+          )
+        )
+        
+        // Small delay to ensure server has processed the update
+        await new Promise(resolve => setTimeout(resolve, 500))
+        
+        // Check the specific message that was just rejected
+        const specificMessageResponse = await fetch(`/api/approvals/${actualMessageId}`)
+        if (specificMessageResponse.ok) {
+          const specificData = await specificMessageResponse.json()
+          console.log(`Specific message ${actualMessageId} after rejection:`, specificData)
+          
+          // Verify the status is actually rejected
+          if (specificData.approval && specificData.approval.approval_status !== 'rejected') {
+            console.error('WARNING: Message was not properly rejected!', specificData.approval.approval_status)
+          } else {
+            console.log('✅ Message successfully marked as rejected')
+          }
+        } else {
+          console.error('Failed to fetch rejected message details')
+        }
+        
+        // Refresh pending approvals to get latest data
+        const approvalsResponse = await fetch('/api/approvals')
+        if (approvalsResponse.ok) {
+          const approvalsData = await approvalsResponse.json()
+          console.log('Full approvals response after rejection:', approvalsData)
+          console.log('Updated approvals data after rejection:', approvalsData.approvals)
+          if (approvalsData.approvals) {
+            setPendingApprovals(approvalsData.approvals)
+          } else if (approvalsData.approvals === null) {
+            // Don't clear all approvals when API returns null after rejection
+            // Keep existing approvals to maintain rejected message tracking
+            console.log('API returned null approvals after rejection, keeping existing approval data')
+          }
+        }
+      } else {
+        const errorText = await response.text()
+        console.error('Failed to reject message:', response.status, errorText)
+        alert('Failed to reject message. Please try again.')
+      }
+    } catch (error) {
+      console.error('Error rejecting message:', error)
+      alert('Error rejecting message. Please check your connection and try again.')
+    }
+  }
+
+  const handleAiToggle = async (chatId: string) => {
+    try {
+      const chatToUpdate = chats.find(chat => chat.id === chatId)
+      if (!chatToUpdate) return
+
+      const newAiStatus = !chatToUpdate.aiActive
+
+      // Optimistically update the UI
+      setChats(prevChats => 
+        prevChats.map(chat => 
+          chat.id === chatId 
+            ? { ...chat, aiActive: newAiStatus }
+            : chat
+        )
+      )
+
+      // TODO: Make API call to update AI status on the server when endpoint is ready
+      // const response = await fetch(`/api/conversations/${chatId}/ai-status`, {
+      //   method: 'PATCH',
+      //   headers: { 'Content-Type': 'application/json' },
+      //   body: JSON.stringify({ aiActive: newAiStatus })
+      // })
+      // if (!response.ok) {
+      //   setChats(prevChats => 
+      //     prevChats.map(chat => 
+      //       chat.id === chatId 
+      //         ? { ...chat, aiActive: !newAiStatus }
+      //         : chat
+      //     )
+      //   )
+      //   console.error('Failed to update AI status')
+      // }
+    } catch (error) {
+      console.error('Error toggling AI status:', error)
+    }
+  }
+
+  if (loading) {
+    return (
+      <div className="flex h-screen bg-background items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-slate-800"></div>
+      </div>
+    )
+  }
 
   return (
     <div className="flex h-screen bg-background">
@@ -517,24 +397,36 @@ export function ChatLayout() {
         selectedChatId ? "hidden md:block" : "block"
       )}>
         <ChatSidebar
-          chats={chatsWithLastMessages}
+          chats={chats}
           selectedChatId={selectedChatId}
           onChatSelect={setSelectedChatId}
           searchQuery={searchQuery}
           onSearchChange={setSearchQuery}
+          onAiToggle={handleAiToggle}
+          pendingApprovals={pendingApprovals}
         />
       </div>
 
       {/* Chat Window - Full width on mobile when chat is selected */}
       <div className={cn(
-        "flex-1",
+        "flex-1 h-full",
         !selectedChatId ? "hidden md:block" : "block"
       )}>
-        <ChatWindow
-          user={selectedChat?.user || null}
-          messages={messages}
-          onBack={() => setSelectedChatId(undefined)}
-        />
+        {messagesLoading ? (
+          <div className="flex items-center justify-center h-full">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-slate-800"></div>
+          </div>
+        ) : (
+          <ChatWindow
+            user={selectedChat?.user || null}
+            messages={messages}
+            onBack={() => setSelectedChatId(undefined)}
+            aiActive={selectedChat?.aiActive}
+            onAiToggle={selectedChatId ? () => handleAiToggle(selectedChatId) : undefined}
+            onApproveMessage={handleApproveMessage}
+            onRejectMessage={handleRejectMessage}
+          />
+        )}
       </div>
     </div>
   )
