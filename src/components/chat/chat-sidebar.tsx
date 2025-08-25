@@ -104,8 +104,8 @@ export function ChatSidebar({
             className={cn(
               "flex-1 text-xs h-7",
               !showNeedsActionOnly 
-                ? "bg-slate-800 hover:bg-slate-900 text-white" 
-                : "border-gray-300 text-gray-600 hover:bg-gray-50"
+                ? "bg-green-100 hover:bg-green-200 text-green-700 border border-green-300" 
+                : "border-green-500 text-green-600 hover:bg-green-50"
             )}
           >
             All
@@ -115,8 +115,29 @@ export function ChatSidebar({
 
       {/* Chat List */}
       <ScrollArea className="flex-1 overscroll-none custom-scrollbar">
-        <div>
-          {filteredChats.map((chat) => (
+        <div className="h-full">
+          {filteredChats.length === 0 && showNeedsActionOnly ? (
+            <div className="flex flex-col items-center justify-center p-8 text-center min-h-96">
+              <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mb-4">
+                <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+              </div>
+              <h3 className="text-sm font-medium text-gray-900 mb-1">All caught up!</h3>
+              <p className="text-xs text-gray-500">No pending AI responses need approval at the moment.</p>
+            </div>
+          ) : filteredChats.length === 0 ? (
+            <div className="flex flex-col items-center justify-center p-8 text-center min-h-96">
+              <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+                <svg className="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                </svg>
+              </div>
+              <h3 className="text-sm font-medium text-gray-900 mb-1">No conversations found</h3>
+              <p className="text-xs text-gray-500">Try adjusting your search or check back later.</p>
+            </div>
+          ) : (
+            filteredChats.map((chat) => (
             <div
               key={chat.id}
               onClick={() => onChatSelect(chat.id)}
@@ -155,7 +176,8 @@ export function ChatSidebar({
                 </p>
               </div>
             </div>
-          ))}
+          ))
+          )}
         </div>
       </ScrollArea>
     </div>

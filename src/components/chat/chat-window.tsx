@@ -1,4 +1,4 @@
-import { ArrowLeft, User } from "lucide-react"
+import { ArrowLeft, User, Check, X } from "lucide-react"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { ChatUser, Message } from "@/types/chat"
@@ -103,12 +103,14 @@ export function ChatWindow({ user, messages, onBack, aiActive, onAiToggle, onApp
               
               <div
                 className={cn(
-                  "rounded-xl text-base shadow-sm transition-all duration-200",
+                  "rounded-xl text-base shadow-sm transition-all duration-200 relative",
                   message.isCurrentUser
                     ? message.responseType === "ai"
                       ? message.aiStatus === "pending"
-                        ? "bg-slate-800 text-white ml-2 px-4 py-3 border border-slate-600" // Task 4: Pending AI (dark)
-                        : "bg-gray-300 text-black ml-2 px-3 py-2" // Task 3: Sent AI (darker gray with black text)
+                        ? "bg-slate-800 text-white ml-2 px-4 py-3 border border-slate-600" // Pending AI (dark)
+                        : message.aiStatus === "rejected"
+                        ? "bg-red-50 text-red-900 ml-2 px-3 py-2 border border-red-200" // Rejected AI (light red)
+                        : "bg-green-50 text-green-900 ml-2 px-3 py-2 border border-green-200" // Approved AI (light green)
                       : "bg-gradient-to-br from-slate-50 to-slate-100 text-slate-900 ml-2 px-3 py-2 shadow-slate-200/50"
                     : "bg-gradient-to-br from-slate-50 to-slate-100 mr-2 px-3 py-2 shadow-slate-200/50"
                 )}
@@ -121,7 +123,9 @@ export function ChatWindow({ user, messages, onBack, aiActive, onAiToggle, onApp
                       message.responseType === "ai" 
                         ? message.aiStatus === "pending"
                           ? "text-blue-300" 
-                          : "text-blue-600"
+                          : message.aiStatus === "rejected"
+                          ? "text-red-700"
+                          : "text-green-700"
                         : "text-black"
                     )}>
                       {message.responseType === "ai" 
@@ -174,26 +178,45 @@ export function ChatWindow({ user, messages, onBack, aiActive, onAiToggle, onApp
                   </div>
                 )}
 
-                {/* Regular timestamp for non-pending messages */}
+                {/* Regular timestamp for non-pending messages with inline status */}
                 {!(message.responseType === "ai" && message.aiStatus === "pending") && (
-                  <span
-                    className={cn(
-                      "text-sm mt-2 block",
-                      message.isCurrentUser
-                        ? message.responseType === "ai"
-                          ? message.aiStatus === "pending"
-                            ? "text-gray-400"
-                            : "text-gray-500"
-                          : "text-slate-600"
-                        : "text-muted-foreground"
+                  <div className="flex items-center gap-2 mt-2 text-sm">
+                    {/* Status badges for AI messages */}
+                    {message.responseType === "ai" && message.aiStatus && message.aiStatus !== "pending" && (
+                      <>
+                        {message.aiStatus === "sent" && (
+                          <div className="flex items-center gap-1 bg-green-100 text-green-700 px-2 py-0.5 rounded-full">
+                            <Check className="h-3 w-3" />
+                            <span className="text-xs font-medium">Approved & Sent</span>
+                          </div>
+                        )}
+                        {message.aiStatus === "rejected" && (
+                          <div className="flex items-center gap-1 bg-red-100 text-red-700 px-2 py-0.5 rounded-full">
+                            <X className="h-3 w-3" />
+                            <span className="text-xs font-medium">Rejected</span>
+                          </div>
+                        )}
+                      </>
                     )}
-                  >
-                    {message.isCurrentUser && message.aiStatus !== "pending" && "Sent "}
-                    {message.timestamp.toLocaleTimeString('en-US', {
-                      hour: '2-digit',
-                      minute: '2-digit',
-                    })}
-                  </span>
+                    
+                    {/* Timestamp */}
+                    <span className="text-gray-500">
+                      {message.timestamp.toLocaleTimeString('en-US', {
+                        hour: '2-digit',
+                        minute: '2-digit',
+                      })}
+                    </span>
+                    
+                    {/* KB ID with bullet separator */}
+                    {message.responseType === "ai" && message.aiStatus && message.aiStatus !== "pending" && message.knowledgeBaseId && (
+                      <>
+                        <span className="text-gray-400">•</span>
+                        <span className="text-xs text-gray-500">
+                          {message.knowledgeBaseId}
+                        </span>
+                      </>
+                    )}
+                  </div>
                 )}
               </div>
             </div>

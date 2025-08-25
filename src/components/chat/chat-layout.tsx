@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useMemo } from "react"
+import { useState, useEffect } from "react"
 import { ChatSidebar } from "./chat-sidebar"
 import { ChatWindow } from "./chat-window"
 import { Chat, Message } from "@/types/chat"
@@ -169,10 +169,8 @@ export function ChatLayout() {
             }
           })
           
-          // Only add messages that aren't rejected
-          const visibleApprovalMessages = approvalMessages.filter(msg => 
-            msg.aiStatus === 'pending' || msg.aiStatus === 'sent'
-          )
+          // Show all approval messages including rejected ones
+          const visibleApprovalMessages = approvalMessages
           
           transformedMessages = [...transformedMessages, ...visibleApprovalMessages]
           
